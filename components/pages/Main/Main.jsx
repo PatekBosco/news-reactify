@@ -7,15 +7,20 @@ import NewsList from '../../NewsList/NewsList';
 import Skeleton from '../../Skeleton/Skeleton';
 import Pagination from '../../Pagination/Pagination';
 import Categories from '../../Categories/Categories';
+import Search from '../../Search/Search';
+import { useDebounce } from '../../helpers/hooks/useDebounce';
 
 const Main = () => {
     const [news, setNews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [categories, setCategories] = useState([]);
+    const [keywords, setKeywords] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const totalPages = 10;
     const pageSize = 10;
+
+    const debouncedKeywords=useDebounce(keywords, 1500);
 
     const fetchNews = async (currentPage) => {
         try {
@@ -24,6 +29,7 @@ const Main = () => {
                 page_number: currentPage,
                 page_size: pageSize,
                 category: selectedCategory === "All" ? null : selectedCategory,
+                keywords: debouncedKeywords,
             });
             setNews(response.news);
             setIsLoading(false);
@@ -48,7 +54,7 @@ const Main = () => {
 
     useEffect(() => {
         fetchNews(currentPage);
-    }, [currentPage, selectedCategory]);
+    }, [currentPage, selectedCategory, debouncedKeywords]);
 
     const handleNextPage = () => {
         if (currentPage < totalPages) {
@@ -68,7 +74,12 @@ const Main = () => {
 
     return (
         <main className={styles.main}>
-            <Categories categories={categories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+            <Categories categories={categories}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory} />
+
+            <Search keywords={keywords}
+                setKeywords={setKeywords} />
 
             {news.length > 0 && !isLoading ? (<NewsBanner item={news[0]} />) : (<Skeleton type={"banner"} count={1} />)}
 
