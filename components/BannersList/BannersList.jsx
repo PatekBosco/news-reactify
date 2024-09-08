@@ -7,7 +7,7 @@ const BannersList = ({ banners }) => {
         <ul className={styles.banners}>
             {banners?.map(banner =>{
                 return <NewsBanner key={banner.id} item={banner} />;
-            })};
+            })}
         </ul>
     );
 };
